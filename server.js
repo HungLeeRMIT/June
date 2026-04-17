@@ -242,8 +242,8 @@ function buildSeatCatalog() {
     };
     // Floor 1
     ['A','B','C'].forEach(r => addRange(1, r, 'VIP', 1, 24));
-    ['D','E','F'].forEach(r => addRange(1, r, 'Stars', 1, 26));
-    ['G','H','J'].forEach(r => addRange(1, r, 'Stars', 1, 26));
+    ['D','E','F'].forEach(r => addRange(1, r, 'Stars', 1, 26));       // only 3 Stars rows
+    ['G','H','J'].forEach(r => addRange(1, r, 'Artists', 1, 26));     // reassigned to Artists
     ['K','L','M'].forEach(r => addRange(1, r, 'Artists', 1, 28));
     addRange(1, 'N', 'Artists', 1, 24);
     // Floor 2
@@ -476,6 +476,117 @@ RMIT Hanoi Musical Theatre Club
 </body></html>`;
 
     return { subject, text, html };
+}
+
+/**
+ * Email that goes out when an admin flips a booking from unpaid to paid.
+ * Short, warm, and acts as a receipt.
+ */
+function buildPaymentConfirmedEmail({ name, seats, total }) {
+    const seatLines = seats
+        .map(s => `  • ${s.tier} — Tầng ${s.floor} — Hàng ${s.row} — Ghế ${s.num}`)
+        .join('\n');
+
+    const subject = 'Xác nhận thanh toán / Payment confirmed — Theat.R Musical Production #3';
+
+    const text =
+`Xin chào ${name},
+
+Cảm ơn bạn! Chúng mình đã xác nhận thanh toán của bạn.
+
+Thông tin vé của bạn:
+  • Họ và tên: ${name}
+  • Ghế đã đặt:
+${seatLines}
+  • Tổng đã thanh toán: ${formatVND(total)}
+
+Đêm diễn:
+  • 30 MAY 2026 · 8PM – 9:30PM  (check-in 7PM)
+  • Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội
+
+Hẹn gặp bạn ở đêm diễn!
+
+Trân trọng,
+CLB Nhạc kịch RMIT Hà Nội
+
+_______________________________
+
+Dear ${name},
+
+Thank you! Your payment has been confirmed.
+
+Your ticket details:
+  • Full Name: ${name}
+  • Selected seats:
+${seatLines}
+  • Total paid: ${formatVND(total)}
+
+The show:
+  • 30 MAY 2026 · 8PM – 9:30PM  (check-in at 7PM)
+  • Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội
+
+See you at the show!
+
+Best regards,
+RMIT Hanoi Musical Theatre Club
+`;
+
+    const seatListHtml = seats.map(s =>
+        `<li>${s.tier} — Tầng ${s.floor} / Floor ${s.floor} — Hàng ${s.row} / Row ${s.row} — Ghế ${s.num} / Seat ${s.num}</li>`
+    ).join('');
+
+    const html = `<!doctype html>
+<html><body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#0b032d;color:#fbf5e7;padding:32px;margin:0;">
+<div style="max-width:640px;margin:0 auto;background:rgba(32,18,83,0.6);border:1px solid rgba(247,220,138,.25);border-radius:16px;padding:28px;">
+
+  <h2 style="color:#f7dc8a;font-family:'Georgia',serif;margin:0 0 4px;">Thank you · Cảm ơn bạn!</h2>
+  <h3 style="color:#fff1b6;margin:0 0 22px;">Payment confirmed · Xác nhận thanh toán</h3>
+
+  <!-- VN -->
+  <p>Xin chào <strong>${name}</strong>,</p>
+  <p>Chúng mình đã xác nhận thanh toán của bạn. Dưới đây là thông tin vé:</p>
+
+  <ul>${seatListHtml}</ul>
+
+  <p style="margin-top:8px"><strong>Tổng đã thanh toán / Total paid:</strong>
+     <span style="color:#fff1b6;font-weight:800">${formatVND(total)}</span></p>
+
+  <div style="margin:18px 0;padding:14px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid rgba(247,220,138,.25);">
+    <div style="color:#f7dc8a;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">The show / Đêm diễn</div>
+    <div><strong>30 MAY 2026</strong> · 8PM – 9:30PM (check-in at 7PM)</div>
+    <div>Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội</div>
+  </div>
+
+  <hr style="border:none;border-top:1px dashed rgba(247,220,138,.35);margin:24px 0;" />
+
+  <!-- EN -->
+  <p>Dear <strong>${name}</strong>,</p>
+  <p>Thank you — your payment has been confirmed. Your ticket is secured.</p>
+  <p>See you at the show!</p>
+
+  <p style="color:#f7dc8a;margin-top:18px">Trân trọng / Best regards,<br/>
+     CLB Nhạc kịch RMIT Hà Nội — RMIT Hanoi Musical Theatre Club</p>
+</div>
+</body></html>`;
+
+    return { subject, text, html };
+}
+
+async function sendPaymentConfirmedEmail({ to, name, seats, total }) {
+    const transport = getMailer();
+    if (!transport) {
+        console.log(`[mail] (skipped) would send payment-confirmed to ${to}`);
+        return { skipped: true };
+    }
+    const { subject, text, html } = buildPaymentConfirmedEmail({ name, seats, total });
+    const info = await transport.sendMail({
+        from: `"${MAIL_FROM_NAME}" <${GMAIL_USER}>`,
+        to,
+        replyTo: GMAIL_USER,
+        subject, text, html,
+    });
+    console.log('[mail] payment-confirmed sent:', info.messageId, '→', to);
+    return { messageId: info.messageId };
 }
 
 async function sendConfirmationEmail({ to, name, phone, seats, subtotal, discount, total, hasReferral, isRmit }) {
@@ -780,18 +891,36 @@ app.delete('/api/admin/bookings/:id', requireAdmin, (req, res) => {
     res.json({ ok: true, bookingId: id });
 });
 
-// Mark booking as paid / unpaid (admin-only).
+// Mark booking as paid / unpaid (admin-only). When we flip a booking from
+// unpaid → paid, we fire a "thank you, payment confirmed" email. Flipping
+// back to unpaid (or re-setting paid on an already-paid row) sends nothing,
+// so accidental double-clicks don't spam the guest.
 app.post('/api/admin/bookings/:id/paid', requireAdmin, (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid booking id' });
-    const b = q.getBooking.get(id);
-    if (!b) return res.status(404).json({ error: 'Booking not found' });
-    if (b.kind !== 'booking') return res.status(400).json({ error: 'Not a guest booking' });
+
+    const current = db.prepare(`SELECT id, name, email, kind, paid, total FROM bookings WHERE id = ?`).get(id);
+    if (!current) return res.status(404).json({ error: 'Booking not found' });
+    if (current.kind !== 'booking') return res.status(400).json({ error: 'Not a guest booking' });
 
     // Body: { paid: true | false }. Defaults to true ("mark as paid").
     const paid = req.body && typeof req.body.paid === 'boolean' ? req.body.paid : true;
+    const wasPaid = Boolean(current.paid);
+
     q.setBookingPaid.run(paid ? 1 : 0, id);
-    res.json({ ok: true, bookingId: id, paid });
+
+    // Fire-and-forget payment-confirmed email on the unpaid→paid transition.
+    if (paid && !wasPaid && current.email) {
+        const seats = q.listBookingSeats.all(id);
+        sendPaymentConfirmedEmail({
+            to: current.email,
+            name: current.name,
+            seats,
+            total: current.total,
+        }).catch(err => console.error('[mail] payment-confirmed failed:', err.message));
+    }
+
+    res.json({ ok: true, bookingId: id, paid, emailed: paid && !wasPaid });
 });
 
 // Full seat-map with admin-grade metadata: who booked each seat, lock status,

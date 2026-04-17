@@ -224,8 +224,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* -------- Price summary -------- */
-        .price-row { display: flex; justify-content: space-between; align-items: baseline; font-size: .9rem; padding: 3px 0; }
-        .price-row.total { font-size: 1rem; font-weight: 800; color: var(--gold); padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--line); }
 
         /* -------- Responsive -------- */
         @media (max-width: 640px) {
@@ -294,23 +292,20 @@
                 </div>
             </div>
 
-            <!-- Pricing -->
+            <!-- Tier swatches (no prices) -->
             <div class="mt-10 pt-8 border-t border-[color:var(--gold)]/15 grid grid-cols-3 gap-3 sm:gap-6 text-center">
                 <div class="rounded-2xl p-4 stars-bg text-[color:var(--cobalt-deep)]">
-                    <div class="text-[10px] uppercase tracking-widest font-black opacity-70">Stars</div>
-                    <div class="text-lg sm:text-xl font-black mt-1">300,000₫</div>
+                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Stars</div>
                 </div>
                 <div class="rounded-2xl p-4 artists-bg text-[color:var(--cobalt-deep)]">
-                    <div class="text-[10px] uppercase tracking-widest font-black opacity-70">Artists</div>
-                    <div class="text-lg sm:text-xl font-black mt-1">250,000₫</div>
+                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Artists</div>
                 </div>
                 <div class="rounded-2xl p-4 dreamers-bg text-[#3a2a00]">
-                    <div class="text-[10px] uppercase tracking-widest font-black opacity-70">Dreamers</div>
-                    <div class="text-lg sm:text-xl font-black mt-1">180,000₫</div>
+                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Dreamers</div>
                 </div>
             </div>
 
-            <div class="mt-10 pt-6 border-t border-[color:var(--gold)]/10">
+            <div class="mt-8 pt-6 border-t border-[color:var(--gold)]/10">
                 <p class="text-sm text-[color:var(--gold)]/80 italic mb-6" data-i18n="vipNote">SEATMAP (note: VIP seats cannot be selected, only for guests)</p>
                 <button class="btn-primary text-lg" onclick="showSection('seats')" data-i18n="startReg">Reserve Your Seats</button>
             </div>
@@ -347,20 +342,15 @@
 
                     <div class="map-legend mb-6">
                         <div class="legend-item"><div class="legend-box vip-bg opacity-70"></div> <span data-i18n="vipLegend">VIP (Not Selectable)</span></div>
-                        <div class="legend-item"><div class="legend-box stars-bg"></div> <span data-i18n="starsLegend">The Stars — 300,000₫</span></div>
-                        <div class="legend-item"><div class="legend-box artists-bg"></div> <span data-i18n="artistsLegend">The Artists — 250,000₫</span></div>
-                        <div class="legend-item"><div class="legend-box dreamers-bg"></div> <span data-i18n="dreamersLegend">The Dreamers — 180,000₫</span></div>
+                        <div class="legend-item"><div class="legend-box stars-bg"></div> <span data-i18n="starsLegend">The Stars</span></div>
+                        <div class="legend-item"><div class="legend-box artists-bg"></div> <span data-i18n="artistsLegend">The Artists</span></div>
+                        <div class="legend-item"><div class="legend-box dreamers-bg"></div> <span data-i18n="dreamersLegend">The Dreamers</span></div>
                         <div class="legend-item"><div class="legend-box" style="background:linear-gradient(135deg,#fff,#fff1b6)"></div> <span data-i18n="selectedLegend">Selected</span></div>
                         <div class="legend-item"><div class="legend-box" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1)"></div> <span data-i18n="soldLegend">Booked</span></div>
                     </div>
 
                     <div id="selection-list" class="space-y-2 mb-6 max-h-60 overflow-y-auto text-sm">
                         <p class="text-cream/40 italic" data-i18n="noSeats">No seats selected</p>
-                    </div>
-
-                    <div id="price-summary" class="hidden pt-3 mb-4 border-t border-[color:var(--gold)]/10 text-cream/85">
-                        <div class="price-row"><span data-i18n="subtotal">Subtotal</span><span id="subtotalVal">0₫</span></div>
-                        <div class="price-row total"><span data-i18n="total">Total</span><span id="totalVal">0₫</span></div>
                     </div>
 
                     <div class="pt-4 border-t border-[color:var(--gold)]/20">
@@ -386,11 +376,6 @@
                 <div class="bg-white/5 p-4 rounded-xl border border-white/10">
                     <h4 class="text-[10px] uppercase text-cream/50 tracking-wider mb-2" data-i18n="selSeatTitle">Selected Seats</h4>
                     <div id="regSummary" class="font-semibold text-[color:var(--gold)] text-base space-y-1"></div>
-                    <div class="mt-4 pt-3 border-t border-white/10">
-                        <div class="price-row"><span data-i18n="subtotal">Subtotal</span><span id="regSubtotal">0₫</span></div>
-                        <div class="price-row total"><span data-i18n="total">Total</span><span id="regTotal">0₫</span></div>
-                        <p class="text-[11px] italic text-cream/60 mt-2" data-i18n="discountHint">RMIT students/staff or referral code → 5% off.</p>
-                    </div>
                 </div>
             </div>
 
@@ -402,9 +387,9 @@
                 <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formPhone">Phone Number</label>
                      <input type="tel" id="regPhone" required></div>
                 <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formSid">sID (RMIT Student/Staff ID)</label>
-                     <input type="text" id="regSID" placeholder="Optional — unlocks 5% discount"></div>
+                     <input type="text" id="regSID" placeholder="Optional"></div>
                 <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="refLabel">Referral Code (Optional)</label>
-                     <input type="text" id="regRef" placeholder="Optional — unlocks 5% discount"></div>
+                     <input type="text" id="regRef" placeholder="Optional"></div>
 
                 <div class="flex gap-4 pt-4">
                     <button type="button" class="pill flex-1 py-4" onclick="showSection('seats')" data-i18n="back">Back</button>
@@ -428,7 +413,6 @@
                     <div><h4 class="text-[10px] uppercase text-[color:var(--gold)] tracking-widest mb-1">VENUE</h4><p class="font-bold">Nhà văn hoá Quận Đống Đa</p><p class="text-cream/60 text-sm mt-1">22 Đặng Tiến Đông, Hà Nội</p></div>
                     <div><h4 class="text-[10px] uppercase text-[color:var(--gold)] tracking-widest mb-1" data-i18n="confNameLbl">Name</h4><p id="confName" class="font-bold">-</p></div>
                     <div class="md:col-span-2"><h4 class="text-[10px] uppercase text-[color:var(--gold)] tracking-widest mb-1" data-i18n="confSeatsLbl">Seats</h4><p id="confSeats" class="font-bold">-</p></div>
-                    <div class="md:col-span-2"><h4 class="text-[10px] uppercase text-[color:var(--gold)] tracking-widest mb-1" data-i18n="confTotalLbl">Total</h4><p id="confTotal" class="font-black text-[color:var(--gold-bright)] text-xl">-</p></div>
                 </div>
             </div>
 
@@ -459,9 +443,9 @@
             floor2: "tầng 2 / second floor",
             formName: "Full Name",
             vipLegend: "VIP (Not Selectable)",
-            starsLegend: "The Stars — 300,000₫",
-            artistsLegend: "The Artists — 250,000₫",
-            dreamersLegend: "The Dreamers — 180,000₫",
+            starsLegend: "The Stars",
+            artistsLegend: "The Artists",
+            dreamersLegend: "The Dreamers",
             selectedLegend: "Selected",
             soldLegend: "Booked",
             formEmail: "Email Address",
@@ -473,11 +457,9 @@
             backHome: "Back to Home",
             selectedCount: "Selected:",
             refLabel: "Referral Code (Optional)",
-            subtotal: "Subtotal", total: "Total",
-            discountHint: "RMIT students/staff or referral code → 5% off.",
             noSeats: "No seats selected",
-            confNameLbl: "Name", confSeatsLbl: "Seats", confTotalLbl: "Total",
-            confirmationHint: "A confirmation email has been sent to your inbox with bank-transfer details. Please reply with your payment screenshot within 48 hours.",
+            confNameLbl: "Name", confSeatsLbl: "Seats",
+            confirmationHint: "A confirmation email has been sent to your inbox with payment details. Please reply with your transfer screenshot within 48 hours.",
         },
         vi: {
             navHome: "Trang chủ", navSeats: "Chỗ ngồi",
@@ -495,9 +477,9 @@
             floor2: "tầng 2 / second floor",
             formName: "Họ và tên",
             vipLegend: "VIP (Không thể chọn)",
-            starsLegend: "The Stars — 300,000₫",
-            artistsLegend: "The Artists — 250,000₫",
-            dreamersLegend: "The Dreamers — 180,000₫",
+            starsLegend: "The Stars",
+            artistsLegend: "The Artists",
+            dreamersLegend: "The Dreamers",
             selectedLegend: "Đã chọn",
             soldLegend: "Đã đặt",
             formEmail: "Địa chỉ Email",
@@ -509,10 +491,8 @@
             backHome: "Về trang chủ",
             selectedCount: "Đã chọn:",
             refLabel: "Mã giới thiệu (Nếu có)",
-            subtotal: "Tạm tính", total: "Tổng cộng",
-            discountHint: "Sinh viên/nhân viên RMIT hoặc có mã giới thiệu → giảm 5%.",
             noSeats: "Chưa chọn ghế nào",
-            confNameLbl: "Họ tên", confSeatsLbl: "Ghế", confTotalLbl: "Tổng cộng",
+            confNameLbl: "Họ tên", confSeatsLbl: "Ghế",
             confirmationHint: "Email xác nhận đã được gửi kèm thông tin chuyển khoản. Vui lòng phản hồi kèm ảnh chuyển khoản trong vòng 48 giờ.",
         }
     };
@@ -525,9 +505,6 @@
     let currentLang = 'en';
     let selectedSeats = [];   // [{ id, floor, row, num, tier }]
     let soldSeats = new Set();
-    const PRICES = { Stars: 300000, Artists: 250000, Dreamers: 180000, VIP: 0 };
-
-    function fmtVND(n) { return (n || 0).toLocaleString('vi-VN') + '₫'; }
 
     function setLang(lang) {
         currentLang = lang;
@@ -565,15 +542,12 @@
         if (id === 'seats') refreshSoldSeats();
 
         if (id === 'register') {
-            const { subtotal, discount, total, hasDiscountEligibility } = computeTotals();
             document.getElementById('regSummary').innerHTML = selectedSeats.length
                 ? selectedSeats.map(s => `<div class="flex justify-between items-center border-b border-white/10 py-1.5">
                         <span>Floor ${s.floor} · Row ${s.row} · Seat ${s.num}</span>
                         <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded ${s.tier.toLowerCase()}-bg">${s.tier}</span>
                     </div>`).join('')
                 : '<div class="text-white/40">No seats selected</div>';
-            document.getElementById('regSubtotal').textContent = fmtVND(subtotal);
-            document.getElementById('regTotal').textContent = fmtVND(total);
         }
     }
     function resetAndGoHome() {
@@ -582,18 +556,6 @@
         document.getElementById('bookingForm').reset();
         updateUI();
         showSection('home');
-    }
-
-    // =========================================================================
-    //  Price calc
-    // =========================================================================
-    function computeTotals() {
-        const subtotal = selectedSeats.reduce((a, s) => a + (PRICES[s.tier] || 0), 0);
-        const sid = document.getElementById('regSID')?.value?.trim();
-        const ref = document.getElementById('regRef')?.value?.trim();
-        const hasDiscountEligibility = Boolean(sid) || Boolean(ref);
-        const discount = hasDiscountEligibility ? Math.round(subtotal * 0.05) : 0;
-        return { subtotal, discount, total: subtotal - discount, hasDiscountEligibility };
     }
 
     // =========================================================================
@@ -610,9 +572,9 @@
         { row: 'D', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
         { row: 'E', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
         { row: 'F', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
-        { row: 'G', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
-        { row: 'H', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
-        { row: 'J', tier: 'Stars',   left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
+        { row: 'G', tier: 'Artists', left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
+        { row: 'H', tier: 'Artists', left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
+        { row: 'J', tier: 'Artists', left: { count: 13, start: 26 }, right: { count: 13, start: 13 } },
         { row: 'K', tier: 'Artists', left: { count: 14, start: 28 }, right: { count: 14, start: 14 } },
         { row: 'L', tier: 'Artists', left: { count: 14, start: 28 }, right: { count: 14, start: 14 } },
         { row: 'M', tier: 'Artists', left: { count: 14, start: 28 }, right: { count: 14, start: 14 } },
@@ -735,13 +697,11 @@
         const list = document.getElementById('selection-list');
         const countDisplay = document.getElementById('countDisplay');
         const btnContinue = document.getElementById('btnContinue');
-        const priceWrap = document.getElementById('price-summary');
 
         if (selectedSeats.length === 0) {
             list.innerHTML = `<p class="text-cream/40 italic">${translations[currentLang].noSeats}</p>`;
             countDisplay.innerText = '0';
             btnContinue.disabled = true;
-            priceWrap.classList.add('hidden');
             return;
         }
 
@@ -751,11 +711,6 @@
                 <span class="text-[10px] uppercase px-2 py-1 rounded-full ${seat.tier.toLowerCase()}-bg font-black">${seat.tier}</span>
             </div>
         `).join('');
-
-        const { subtotal, total } = computeTotals();
-        document.getElementById('subtotalVal').textContent = fmtVND(subtotal);
-        document.getElementById('totalVal').textContent = fmtVND(total);
-        priceWrap.classList.remove('hidden');
 
         countDisplay.innerText = selectedSeats.length;
         btnContinue.disabled = false;
@@ -812,7 +767,6 @@
             document.getElementById('confName').textContent = name;
             document.getElementById('confSeats').textContent =
                 data.seats.map(s => `F${s.floor}·${s.row}${s.num} (${s.tier})`).join(',  ');
-            document.getElementById('confTotal').textContent = fmtVND(data.total);
             toast(currentLang === 'vi' ? 'Đặt chỗ thành công! Email đã được gửi.' : 'Booking confirmed! Check your email.', 'success');
             // Mark the seats we just booked as sold, but clear our local
             // selection FIRST so applySoldSeats() doesn't mistake our own
@@ -832,8 +786,6 @@
     }
 
     document.getElementById('bookingForm').addEventListener('submit', submitBooking);
-    document.getElementById('regSID').addEventListener('input', updateUI);
-    document.getElementById('regRef').addEventListener('input', updateUI);
 
     // =========================================================================
     //  Init

@@ -156,6 +156,19 @@ async function waitForListen() {
     const me = await httpJson({ pathname: '/api/admin/me', cookie });
     check(me.status === 200 && me.body.authenticated === true && me.body.username === 'admin', '/api/admin/me reports authenticated');
 
+    // Verify the updated seat-catalog: only D/E/F are Stars; G/H/J are Artists.
+    console.log('\n--- seat-catalog tiers ---');
+    const tierProbe = await httpJson({
+        method: 'POST', pathname: '/api/book',
+        body: { name: 'Tier Probe', email: 't@t.local', phone: '0987654321', seats: ['F1-F-26', 'F1-G-26'] },
+    });
+    check(tierProbe.status === 200, 'probe booking succeeds');
+    const tiers = Object.fromEntries(tierProbe.body.seats.map(s => [s.seat_id, s.tier]));
+    check(tiers['F1-F-26'] === 'Stars',   'row F is Stars');
+    check(tiers['F1-G-26'] === 'Artists', 'row G is Artists (was Stars)');
+    // Clean up this probe so it doesn't pollute later assertions.
+    await httpJson({ method: 'DELETE', pathname: `/api/admin/bookings/${tierProbe.body.bookingId}`, cookie });
+
     // 6. Fetch bookings.
     console.log('\n--- admin list ---');
     const list = await httpJson({ pathname: '/api/admin/bookings', cookie });
@@ -221,13 +234,19 @@ async function waitForListen() {
 
     const pay = await httpJson({ method: 'POST', pathname: `/api/admin/bookings/${bid}/paid`, cookie, body: { paid: true } });
     check(pay.status === 200 && pay.body.ok && pay.body.paid === true, `mark booking #${bid} as paid → 200`);
+    check(pay.body.emailed === true, 'first unpaid→paid transition triggers payment email');
 
     const afterPay = await httpJson({ pathname: '/api/admin/bookings', cookie });
     check(afterPay.body.bookings[0].paid === true, 'booking now marked paid');
 
+    // Marking-as-paid again (no transition) should NOT email.
+    const payAgain = await httpJson({ method: 'POST', pathname: `/api/admin/bookings/${bid}/paid`, cookie, body: { paid: true } });
+    check(payAgain.body.emailed === false, 'already-paid → paid does NOT re-send email');
+
     // Unmark
     const unpay = await httpJson({ method: 'POST', pathname: `/api/admin/bookings/${bid}/paid`, cookie, body: { paid: false } });
     check(unpay.status === 200 && unpay.body.paid === false, 'can flip back to unpaid');
+    check(unpay.body.emailed === false, 'paid→unpaid does NOT email');
 
     // 12. Seat map endpoint includes rich metadata.
     console.log('\n--- seat map ---');
