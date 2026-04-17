@@ -89,12 +89,143 @@
         }
 
         /* -------- Hero -------- */
-        .hero-title {
+        .hero-wrap {
+            position: relative;
+            min-height: 92vh;
+            padding: 3rem 1.5rem 5rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero-wrap::before {
+            content: '';
+            position: absolute; inset: -10% -10% 0 -10%;
+            background:
+                radial-gradient(ellipse 60% 50% at 50% 0%, rgba(247,220,138,.22), transparent 60%),
+                radial-gradient(circle 60% at 50% 110%, rgba(163,133,224,.18), transparent 60%);
+            pointer-events: none;
+        }
+        .hero-wrap > * { position: relative; z-index: 1; }
+
+        .hero-eyebrow {
+            font-size: clamp(.7rem, 1.2vw, .85rem);
+            letter-spacing: .35em;
+            text-transform: uppercase;
+            color: rgba(251,245,231,.65);
+            font-weight: 600;
+            margin-bottom: 1.4rem;
+        }
+        .hero-mega {
             font-family: var(--font-display);
-            background: linear-gradient(135deg, #fff1b6 0%, #f7dc8a 60%, #e0b85c 100%);
+            font-weight: 900;
+            font-size: clamp(3.4rem, 13vw, 10.5rem);
+            line-height: .88;
+            letter-spacing: -.035em;
+            background: linear-gradient(180deg, #fff5d0 0%, #f7dc8a 40%, #c9a558 100%);
             -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 30px rgba(247,220,138,.25);
+            filter: drop-shadow(0 6px 60px rgba(247,220,138,.35));
+            margin: 0;
+            animation: heroRise .9s cubic-bezier(.2,.8,.2,1) both;
+        }
+        @keyframes heroRise {
+            from { opacity: 0; transform: translateY(24px); letter-spacing: 0; }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .hero-sub {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-weight: 700;
+            font-size: clamp(1.3rem, 3vw, 2.4rem);
+            color: rgba(251,245,231,.85);
+            margin: 1rem 0 0;
+            letter-spacing: -.01em;
+        }
+        .hero-tagline {
+            font-size: clamp(.9rem, 1.4vw, 1.05rem);
+            color: rgba(251,245,231,.6);
+            max-width: 52ch;
+            margin: .9rem auto 0;
+            line-height: 1.55;
+        }
+
+        /* Info card */
+        .info-card {
+            margin-top: 3rem;
+            padding: 1.6rem 2.2rem;
+            background: rgba(11,3,45,.55);
+            border: 1px solid rgba(247,220,138,.22);
+            backdrop-filter: blur(14px);
+            border-radius: 22px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,.45);
+            max-width: 780px; width: 100%;
+        }
+        .info-col { padding: .4rem 1.3rem; text-align: center; position: relative; }
+        .info-col + .info-col::before {
+            content: ''; position: absolute; left: 0; top: 10%; bottom: 10%;
+            border-left: 1px solid rgba(247,220,138,.18);
+        }
+        .info-col h4 {
+            font-size: .62rem; letter-spacing: .34em; text-transform: uppercase;
+            color: var(--gold); font-weight: 700; margin-bottom: .55rem;
+        }
+        .info-col .big {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+            color: var(--cream); line-height: 1.1;
+        }
+        .info-col .sub { display: block; font-size: .72rem; color: rgba(251,245,231,.55); margin-top: .35rem; letter-spacing: .04em; }
+
+        /* Hero tier swatches (compact variant inside the hero) */
+        .hero-tiers { margin-top: 1.6rem; width: 100%; max-width: 780px; }
+        .hero-tiers .tier-grid { gap: .6rem; }
+        .hero-tiers .tier-card { padding: .9rem .5rem; }
+        .hero-tiers .tier-card .tier-name { font-size: clamp(.9rem, 1.4vw, 1.1rem); }
+
+        /* Hero CTAs */
+        .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 1.6rem; }
+        .btn-ghost {
+            background: transparent;
+            color: var(--cream);
+            font-weight: 700;
+            border: 1px solid rgba(247,220,138,.4);
+            border-radius: 999px;
+            padding: 12px 24px;
+            transition: all .2s;
+            letter-spacing: .04em;
+        }
+        .btn-ghost:hover { background: rgba(247,220,138,.08); border-color: var(--gold); color: var(--gold-bright); transform: translateY(-2px); }
+
+        /* Section scaffolding below hero */
+        .section-block { max-width: 64rem; margin: 0 auto; padding: 3rem 1.5rem; }
+        .section-title {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            color: var(--gold);
+            margin-bottom: 1.2rem; letter-spacing: -.01em;
+        }
+        .tier-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .75rem; }
+        .tier-card {
+            padding: 1.25rem .5rem; border-radius: 18px;
+            text-align: center;
+            transition: transform .2s, box-shadow .2s, filter .2s;
+        }
+        .tier-card:hover { transform: translateY(-3px); filter: brightness(1.05); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+        .tier-card .tier-name {
+            font-family: var(--font-display); font-weight: 700;
+            font-size: clamp(1rem, 1.8vw, 1.35rem);
+            letter-spacing: .04em;
+        }
+
+        @media (max-width: 640px) {
+            .info-card { grid-template-columns: 1fr; gap: 0; padding: 1.2rem; }
+            .info-col { padding: .8rem 0; }
+            .info-col + .info-col::before { left: 10%; right: 10%; top: 0; bottom: auto; border-top: 1px solid rgba(247,220,138,.15); border-left: none; }
+            .hero-wrap { min-height: 82vh; padding-top: 1.5rem; }
         }
 
         /* -------- Seats -------- */
@@ -194,6 +325,16 @@
         }
         input:focus, textarea:focus { border-color: var(--gold); background: rgba(255,255,255,.08); }
         input::placeholder { color: rgba(251,245,231,.35); }
+        input.invalid, textarea.invalid {
+            border-color: rgba(239,120,120,.7);
+            background: rgba(239,120,120,.08);
+        }
+        .field-error {
+            color: #ffbfbf;
+            font-size: .78rem;
+            margin-top: .4rem;
+            font-weight: 500;
+        }
 
         /* -------- Toast -------- */
         .toast-wrap {
@@ -243,7 +384,7 @@
 <body>
 
     <nav class="site-nav">
-        <a href="#" class="nav-brand" onclick="showSection('home'); return false;">RMIT Theatre</a>
+        <a href="#" class="nav-brand" onclick="showSection('home'); return false;">La La Land</a>
         <div class="nav-menu">
             <div class="hidden sm:flex items-center gap-6 mr-6 text-[10px] uppercase tracking-widest font-bold text-cream/60">
                 <span class="cursor-pointer hover:text-[color:var(--gold)] transition" onclick="showSection('home')" data-i18n="navHome">Home</span>
@@ -259,55 +400,59 @@
     <div class="toast-wrap" id="toastWrap"></div>
 
     <!-- ================= HOME ================= -->
-    <section id="homeSection" class="max-w-5xl mx-auto px-6 py-12">
-        <div class="text-center mb-16">
-            <h1 class="text-5xl sm:text-6xl font-black mb-4 hero-title" data-i18n="heroTitle">RMIT Hanoi Musical Theatre Club</h1>
-            <p class="text-xl sm:text-2xl italic text-cream/70" data-i18n="heroSubtitle">Where dreams take the stage</p>
-        </div>
+    <section id="homeSection">
+        <!-- Hero -->
+        <div class="hero-wrap">
+            <div class="hero-eyebrow" data-i18n="heroEyebrow">RMIT Hanoi Musical Theatre Club · Theat.R Production #3</div>
 
-        <div class="panel p-8 mb-12">
-            <h2 class="text-3xl font-display text-[color:var(--gold)] mb-6" data-i18n="aboutTitle">About Us</h2>
-            <div id="aboutContent" class="space-y-4 leading-relaxed text-cream/90"></div>
-        </div>
+            <h1 class="hero-mega">La La Land</h1>
+            <p class="hero-sub" data-i18n="heroSub">The Cost of the Dream</p>
+            <p class="hero-tagline" data-i18n="heroTagline">An original musical about dreams, ambition, and the cost of chasing them — told through the songs you love, rewritten for one unforgettable night.</p>
 
-        <div class="panel p-8 sm:p-10 text-center border-2 border-[color:var(--gold)]/30">
-            <h3 class="text-xs sm:text-sm tracking-[0.3em] uppercase text-[color:var(--gold)] mb-3">Theat.R Production #3</h3>
-            <h2 class="text-3xl sm:text-4xl font-display font-bold mb-2">La La Land: The Cost of the Dream</h2>
-            <p class="text-base sm:text-lg italic text-cream/60 mb-8">La La Land: Cái Giá Của Ước Mơ</p>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                <div>
-                    <h4 class="text-xs uppercase tracking-widest text-[color:var(--gold)] mb-2">DATE</h4>
-                    <p class="text-xl font-bold">30 MAY 2026</p>
+            <div class="info-card">
+                <div class="info-col">
+                    <h4 data-i18n="dateLabel">Date</h4>
+                    <p class="big">30 May 2026</p>
+                    <span class="sub" data-i18n="dateSub">Saturday</span>
                 </div>
-                <div>
-                    <h4 class="text-xs uppercase tracking-widest text-[color:var(--gold)] mb-2">TIME</h4>
-                    <p class="text-xl font-bold">8PM – 9:30PM</p>
-                    <p class="text-sm text-cream/50" data-i18n="checkin">(check-in starts at 7PM)</p>
+                <div class="info-col">
+                    <h4 data-i18n="timeLabel">Time</h4>
+                    <p class="big">8:00 PM</p>
+                    <span class="sub" data-i18n="checkin">(check-in starts at 7PM)</span>
                 </div>
-                <div>
-                    <h4 class="text-xs uppercase tracking-widest text-[color:var(--gold)] mb-2">VENUE</h4>
-                    <p class="text-lg">Nhà văn hoá Quận Đống Đa</p>
-                    <p class="text-sm text-cream/50">22 Đặng Tiến Đông, Hà Nội</p>
+                <div class="info-col">
+                    <h4 data-i18n="venueLabel">Venue</h4>
+                    <p class="big" style="font-size: clamp(.95rem, 1.5vw, 1.2rem)">Nhà văn hoá Q. Đống Đa</p>
+                    <span class="sub">22 Đặng Tiến Đông, Hà Nội</span>
                 </div>
             </div>
 
-            <!-- Tier swatches (no prices) -->
-            <div class="mt-10 pt-8 border-t border-[color:var(--gold)]/15 grid grid-cols-3 gap-3 sm:gap-6 text-center">
-                <div class="rounded-2xl p-4 stars-bg text-[color:var(--cobalt-deep)]">
-                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Stars</div>
+            <!-- Tier swatches (inside hero, directly above CTA) -->
+            <div class="hero-tiers">
+                <div class="tier-grid">
+                    <div class="tier-card stars-bg text-[color:var(--cobalt-deep)]">
+                        <div class="tier-name">The Stars</div>
+                    </div>
+                    <div class="tier-card artists-bg text-[color:var(--cobalt-deep)]">
+                        <div class="tier-name">The Artists</div>
+                    </div>
+                    <div class="tier-card dreamers-bg text-[#3a2a00]">
+                        <div class="tier-name">The Dreamers</div>
+                    </div>
                 </div>
-                <div class="rounded-2xl p-4 artists-bg text-[color:var(--cobalt-deep)]">
-                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Artists</div>
-                </div>
-                <div class="rounded-2xl p-4 dreamers-bg text-[#3a2a00]">
-                    <div class="text-xs sm:text-sm uppercase tracking-widest font-black">The Dreamers</div>
-                </div>
+                <p class="text-xs text-[color:var(--gold)]/70 italic mt-3 text-center" data-i18n="vipNote">SEATMAP (note: VIP seats cannot be selected, only for guests)</p>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-[color:var(--gold)]/10">
-                <p class="text-sm text-[color:var(--gold)]/80 italic mb-6" data-i18n="vipNote">SEATMAP (note: VIP seats cannot be selected, only for guests)</p>
-                <button class="btn-primary text-lg" onclick="showSection('seats')" data-i18n="startReg">Reserve Your Seats</button>
+            <div class="hero-cta">
+                <button class="btn-primary text-lg" onclick="showSection('seats')"><span data-i18n="startReg">Reserve Your Seats</span>&nbsp;→</button>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="section-block">
+            <div class="panel p-8">
+                <h2 class="section-title" data-i18n="aboutTitle">About Us</h2>
+                <div id="aboutContent" class="space-y-4 leading-relaxed text-cream/90"></div>
             </div>
         </div>
     </section>
@@ -379,17 +524,29 @@
                 </div>
             </div>
 
-            <form id="bookingForm" class="space-y-5" autocomplete="on">
-                <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formName">Full Name</label>
-                     <input type="text" id="regName" required></div>
-                <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formEmail">Email Address</label>
-                     <input type="email" id="regEmail" required></div>
-                <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formPhone">Phone Number</label>
-                     <input type="tel" id="regPhone" required></div>
-                <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formSid">sID (RMIT Student/Staff ID)</label>
-                     <input type="text" id="regSID" placeholder="Optional"></div>
-                <div><label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="refLabel">Referral Code (Optional)</label>
-                     <input type="text" id="regRef" placeholder="Optional"></div>
+            <form id="bookingForm" class="space-y-5" autocomplete="on" novalidate>
+                <div>
+                    <label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formName">Full Name</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formEmail">Email Address</label>
+                    <input type="email" id="regEmail" required autocomplete="email" placeholder="you@example.com" inputmode="email">
+                    <p class="field-error hidden" id="regEmailErr" data-i18n="emailErr">Please enter a valid email address.</p>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" required autocomplete="tel" placeholder="0xxxxxxxxx" inputmode="numeric" maxlength="10">
+                    <p class="field-error hidden" id="regPhoneErr" data-i18n="phoneErr">Please enter a 10-digit phone number starting with 0.</p>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="formSid">sID (RMIT Student/Staff ID)</label>
+                    <input type="text" id="regSID" placeholder="Optional">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase mb-2 text-[color:var(--gold)]" data-i18n="refLabel">Referral Code (Optional)</label>
+                    <input type="text" id="regRef" placeholder="Optional">
+                </div>
 
                 <div class="flex gap-4 pt-4">
                     <button type="button" class="pill flex-1 py-4" onclick="showSection('seats')" data-i18n="back">Back</button>
@@ -429,8 +586,14 @@
     const translations = {
         en: {
             navHome: "Home", navSeats: "Seats",
-            heroTitle: "RMIT Hanoi Musical Theatre Club",
-            heroSubtitle: "Where dreams take the stage",
+            heroEyebrow: "RMIT Hanoi Musical Theatre Club · Theat.R Production #3",
+            heroSub: "The Cost of the Dream",
+            heroTagline: "An original musical about dreams, ambition, and the cost of chasing them — told through the songs you love, rewritten for one unforgettable night.",
+            dateLabel: "Date", dateSub: "Saturday",
+            timeLabel: "Time",
+            venueLabel: "Venue",
+            tierTitle: "Seating Tiers",
+            viewSeatmap: "View Seating Map",
             aboutTitle: "About Us",
             checkin: "(check-in starts at 7PM)",
             startReg: "Reserve Your Seats",
@@ -451,6 +614,9 @@
             formEmail: "Email Address",
             formPhone: "Phone Number",
             formSid: "sID (RMIT Student/Staff ID)",
+            emailErr: "Please enter a valid email address.",
+            phoneErr: "Please enter a 10-digit phone number starting with 0.",
+            formFixErrors: "Please fix the highlighted fields.",
             confirmBtnLabel: "Confirm Booking",
             confTitle: "Registration Confirmed!",
             confSub: "Your seats have been reserved. Please check your email for further details.",
@@ -463,8 +629,14 @@
         },
         vi: {
             navHome: "Trang chủ", navSeats: "Chỗ ngồi",
-            heroTitle: "Câu lạc bộ Nhạc kịch RMIT Hà Nội",
-            heroSubtitle: "Nơi những ước mơ bước lên sân khấu",
+            heroEyebrow: "CLB Nhạc kịch RMIT Hà Nội · Theat.R Production #3",
+            heroSub: "Cái Giá Của Ước Mơ",
+            heroTagline: "Vở nhạc kịch nguyên tác về ước mơ, đam mê và cái giá của việc theo đuổi chúng — qua những ca khúc quen thuộc, được kể lại cho một đêm duy nhất.",
+            dateLabel: "Ngày", dateSub: "Thứ Bảy",
+            timeLabel: "Giờ",
+            venueLabel: "Địa điểm",
+            tierTitle: "Hạng ghế",
+            viewSeatmap: "Xem sơ đồ ghế",
             aboutTitle: "Giới thiệu Ban tổ chức",
             checkin: "(check-in bắt đầu lúc 7PM)",
             startReg: "Đặt chỗ của bạn",
@@ -485,6 +657,9 @@
             formEmail: "Địa chỉ Email",
             formPhone: "Số điện thoại",
             formSid: "sID (Mã sinh viên/nhân viên RMIT)",
+            emailErr: "Vui lòng nhập địa chỉ email hợp lệ.",
+            phoneErr: "Vui lòng nhập số điện thoại 10 chữ số bắt đầu bằng 0.",
+            formFixErrors: "Vui lòng sửa các trường được đánh dấu.",
             confirmBtnLabel: "Xác nhận đặt chỗ",
             confTitle: "Đăng ký thành công!",
             confSub: "Chỗ ngồi của bạn đã được đặt. Vui lòng kiểm tra email để biết thêm chi tiết.",
@@ -554,6 +729,8 @@
         selectedSeats = [];
         document.querySelectorAll('.seat.selected').forEach(s => s.classList.remove('selected'));
         document.getElementById('bookingForm').reset();
+        ['regEmail', 'regPhone'].forEach(id => document.getElementById(id).classList.remove('invalid'));
+        ['regEmailErr', 'regPhoneErr'].forEach(id => document.getElementById(id).classList.add('hidden'));
         updateUI();
         showSection('home');
     }
@@ -717,6 +894,48 @@
     }
 
     // =========================================================================
+    //  Form validation
+    // =========================================================================
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    /** Keep only digits so users can paste "+84 987 654 321" etc.; truncate to 10. */
+    function sanitizePhone(raw) {
+        return (raw || '').replace(/\D/g, '').slice(0, 10);
+    }
+    /** Exactly 10 digits, starting with 0. */
+    function isValidPhone(value) {
+        return /^0\d{9}$/.test(value || '');
+    }
+    function showFieldError(inputId, errorId, show) {
+        document.getElementById(inputId).classList.toggle('invalid', show);
+        document.getElementById(errorId).classList.toggle('hidden', !show);
+    }
+    function validateEmailField() {
+        const el = document.getElementById('regEmail');
+        const ok = !el.value.trim() || EMAIL_RE.test(el.value.trim());
+        showFieldError('regEmail', 'regEmailErr', !ok);
+        return ok;
+    }
+    function validatePhoneField() {
+        const el = document.getElementById('regPhone');
+        const ok = !el.value.trim() || isValidPhone(el.value);
+        showFieldError('regPhone', 'regPhoneErr', !ok);
+        return ok;
+    }
+
+    // Strip anything that isn't a digit, cap at 10 chars.
+    document.getElementById('regPhone').addEventListener('input', (e) => {
+        const cleaned = sanitizePhone(e.target.value);
+        if (cleaned !== e.target.value) e.target.value = cleaned;
+        if (e.target.classList.contains('invalid')) validatePhoneField();
+    });
+    document.getElementById('regPhone').addEventListener('blur', validatePhoneField);
+    document.getElementById('regEmail').addEventListener('blur', validateEmailField);
+    document.getElementById('regEmail').addEventListener('input', (e) => {
+        if (e.target.classList.contains('invalid')) validateEmailField();
+    });
+
+    // =========================================================================
     //  Booking submission
     // =========================================================================
     async function submitBooking(e) {
@@ -727,7 +946,21 @@
         const sid   = document.getElementById('regSID').value.trim();
         const ref   = document.getElementById('regRef').value.trim();
 
-        if (!name || !email || !phone) { toast('Please fill in name, email, and phone.', 'error'); return; }
+        // Required-field check first.
+        if (!name || !email || !phone) {
+            toast(currentLang === 'vi'
+                ? 'Vui lòng điền họ tên, email và số điện thoại.'
+                : 'Please fill in name, email, and phone.', 'error');
+            return;
+        }
+        // Field-level validation; reveal inline errors.
+        const emailOk = validateEmailField();
+        const phoneOk = validatePhoneField();
+        if (!(emailOk && phoneOk)) {
+            toast(translations[currentLang].formFixErrors, 'error');
+            (emailOk ? document.getElementById('regPhone') : document.getElementById('regEmail')).focus();
+            return;
+        }
         if (selectedSeats.length === 0) { toast('No seats selected.', 'error'); showSection('seats'); return; }
 
         const btn = document.getElementById('submitBtn');
