@@ -52,7 +52,7 @@ Upload **everything except** `node_modules/`, `.git/`, `.env`, and `*.db*`. If y
 ```
 .env.example       package.json        package-lock.json
 server.js          club.html           admin.html
-automatic_mail.md  Screenshot 2026-04-17 at 23.54.39.png
+automatic_mail.md  payment.jpeg
 594cfb0d-13b3-429b-a65f-7c0d48b75335.jpeg
 ecosystem.config.js   (harmless on shared hosting; ignored there)
 README.md             DEPLOY.md

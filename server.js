@@ -66,7 +66,7 @@ const PRICES = {
 // Allow persistent-disk / mounted-volume deployments (Hostinger VPS can store
 // the DB outside the app dir so an app-level re-deploy never nukes data).
 const DB_PATH         = process.env.DB_PATH         || path.join(__dirname, 'theatre.db');
-const BANK_SCREENSHOT = process.env.BANK_SCREENSHOT || path.join(__dirname, 'Screenshot 2026-04-17 at 23.54.39.png');
+const BANK_SCREENSHOT = process.env.BANK_SCREENSHOT || path.join(__dirname, 'payment.jpeg');
 
 // ---------------------------------------------------------------------------
 // Database
@@ -328,7 +328,7 @@ ${discountNoteVN}
 
 Đặc biệt, đối với sinh viên, staff của RMIT và người thân, bạn bè của diễn viên có mã giới thiệu sẽ được giảm 5% trên tổng số ghế.
 
-Bạn hãy vui lòng chuyển khoản số tiền tương ứng với hạng ghế và số ghế bạn đã chọn ở trên qua thông tin trong ẢNH ĐÍNH KÈM (bank-transfer.png).
+Bạn hãy vui lòng chuyển khoản số tiền tương ứng với hạng ghế và số ghế bạn đã chọn ở trên qua thông tin trong ẢNH ĐÍNH KÈM (bank-transfer).
 
 Sau khi chuyển khoản, vui lòng REPLY EMAIL NÀY kèm ảnh chụp màn hình chuyển khoản thành công. Email XÁC NHẬN VÉ CUỐI CÙNG sẽ được gửi đến bạn.
 
@@ -363,8 +363,8 @@ Additionally, RMIT students, staff, and friends or family of the cast with a ref
 
 Please kindly transfer the corresponding amount based on your selected seating category and number of seats using the following details:
 
-  VIETCOMBANK
-  BANK NUMBER: 1061771481
+  VIETCOMBANK (PGD Nguyễn Chí Thanh)
+  BANK NUMBER: 1061771304
   BANK NAME:   HOANG DUC HONG
 
 After completing the transfer, please REPLY TO THIS EMAIL with a screenshot of your successful payment. A FINAL REGISTRATION CONFIRMATION email will then be sent to you.
@@ -430,7 +430,7 @@ RMIT Hanoi Musical Theatre Club
 
   <!-- Bank-transfer image embedded via CID (same file also attached) -->
   <div style="margin:12px 0;padding:8px;background:rgba(255,255,255,.04);border:1px solid rgba(247,220,138,.25);border-radius:12px;text-align:center;">
-    <img src="cid:bank-transfer" alt="VIETCOMBANK — 1061771481 — HOANG DUC HONG" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;" />
+    <img src="cid:bank-transfer" alt="VIETCOMBANK — 1061771304 — HOANG DUC HONG (PGD Nguyễn Chí Thanh)" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;" />
   </div>
 
   <p style="margin-top:14px">Sau khi chuyển khoản, vui lòng <strong>REPLY EMAIL NÀY</strong> kèm ảnh chụp màn hình chuyển khoản thành công. Email <strong>XÁC NHẬN VÉ CUỐI CÙNG</strong> sẽ được gửi đến bạn.</p>
@@ -464,8 +464,8 @@ RMIT Hanoi Musical Theatre Club
   <p style="margin-top:16px">Please kindly transfer the corresponding amount based on your selected seating category and number of seats using the following details:</p>
 
   <div style="margin:12px 0;padding:14px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid rgba(247,220,138,.25);font-family:'Courier New',monospace;">
-    <div><strong>VIETCOMBANK</strong></div>
-    <div>BANK NUMBER: <strong>1061771481</strong></div>
+    <div><strong>VIETCOMBANK</strong> <span style="font-family:inherit;font-weight:400;opacity:.8">(PGD Nguyễn Chí Thanh)</span></div>
+    <div>BANK NUMBER: <strong>1061771304</strong></div>
     <div>BANK NAME:   <strong>HOANG DUC HONG</strong></div>
   </div>
 
@@ -600,12 +600,12 @@ async function sendConfirmationEmail({ to, name, phone, seats, subtotal, discoun
     const attachments = [];
     if (fs.existsSync(BANK_SCREENSHOT)) {
         // Inline the image so it renders inside the Vietnamese section of the
-        // HTML body (cid:bank-transfer). `cid` + no `contentDisposition:
-        // 'attachment'` means most clients show it inline only; adding a
-        // second copy as an explicit attachment guarantees the recipient can
-        // also download it if their client hides inline images.
-        attachments.push({ filename: 'bank-transfer.png', path: BANK_SCREENSHOT, cid: 'bank-transfer' });
-        attachments.push({ filename: 'bank-transfer.png', path: BANK_SCREENSHOT, contentDisposition: 'attachment' });
+        // HTML body (cid:bank-transfer). Also attach a downloadable copy for
+        // clients that block inline images.
+        const ext = (path.extname(BANK_SCREENSHOT) || '.jpg').toLowerCase();
+        const fname = 'bank-transfer' + ext;
+        attachments.push({ filename: fname, path: BANK_SCREENSHOT, cid: 'bank-transfer' });
+        attachments.push({ filename: fname, path: BANK_SCREENSHOT, contentDisposition: 'attachment' });
     }
 
     const info = await transport.sendMail({

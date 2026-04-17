@@ -13,7 +13,7 @@ Static landing page + seat‑map booking flow (`club.html`) wired to a small Nod
 | `package.json`          | Node dependencies (`express`, `better-sqlite3`, `nodemailer`, `dotenv`). |
 | `.env.example`          | Template for secrets (copy → `.env`). |
 | `theatre.db`            | SQLite file (auto‑created on first run). |
-| `Screenshot 2026-04-17 at 23.54.39.png` | Bank‑transfer image attached to every confirmation email. |
+| `payment.jpeg`          | Bank‑transfer QR image attached to every confirmation email. |
 | `DEPLOY.md`             | Step-by-step Hostinger VPS deployment (Nginx + PM2 + Certbot). |
 | `deploy/deploy.sh`      | One-shot deploy script (`git pull && npm ci && pm2 reload`). |
 | `deploy/backup.sh`      | Nightly SQLite backup (online-safe, gzipped, 14-day rolling). |
