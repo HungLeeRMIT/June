@@ -28,10 +28,13 @@ const nodemailer = require('nodemailer');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD  = NODE_ENV === 'production';
 
-const PORT       = Number(process.env.PORT) || 3000;
-// In production, bind to loopback by default (Nginx reverse-proxies to us).
-// In dev, bind to all interfaces so http://<your-ip>:3000 works from phones.
-const BIND_HOST  = process.env.BIND_HOST || (IS_PROD ? '127.0.0.1' : '0.0.0.0');
+// Passenger / LiteSpeed (Hostinger shared Node hosting) hands us a specific
+// port via process.env.PORT and expects us to bind on it with NO explicit
+// host. Set BIND_HOST="" (empty) in that environment; we'll skip the host arg.
+const PORT       = Number(process.env.PORT) || (process.env.PORT ? process.env.PORT : 3000);
+const BIND_HOST  = process.env.BIND_HOST !== undefined
+    ? process.env.BIND_HOST
+    : (IS_PROD ? '127.0.0.1' : '0.0.0.0');
 
 // `TRUST_PROXY` tells Express how many reverse-proxy hops to trust when
 // reading `X-Forwarded-*` headers. Behind Nginx on the same host: "1".
@@ -840,11 +843,19 @@ app.post('/api/admin/seats/:seatId/lock', requireAdmin, (req, res) => {
 // ---------------------------------------------------------------------------
 // Startup + graceful shutdown
 // ---------------------------------------------------------------------------
-const server = app.listen(PORT, BIND_HOST, () => {
-    const displayHost = BIND_HOST === '0.0.0.0' ? 'localhost' : BIND_HOST;
+function startListening(onReady) {
+    // When BIND_HOST is empty we let Node/Passenger pick the interface. This
+    // matters on Hostinger's shared Node hosting, where process.env.PORT can
+    // be a unix-socket path — passing a host arg breaks listen() in that case.
+    if (BIND_HOST) return app.listen(PORT, BIND_HOST, onReady);
+    return app.listen(PORT, onReady);
+}
+
+const server = startListening(() => {
+    const displayHost = !BIND_HOST || BIND_HOST === '0.0.0.0' ? 'localhost' : BIND_HOST;
     console.log(`\n🎭  Theat.R booking server running → http://${displayHost}:${PORT}`);
     console.log(`    Env:         ${NODE_ENV}${IS_PROD ? '' : ' (NODE_ENV=production in prod)'}`);
-    console.log(`    Binding:     ${BIND_HOST}:${PORT}   trust proxy: ${TRUST_PROXY || 'off'}`);
+    console.log(`    Binding:     ${BIND_HOST || '(auto)'}:${PORT}   trust proxy: ${TRUST_PROXY || 'off'}`);
     console.log(`    Secure cookies: ${FORCE_SECURE_COOKIES ? 'on' : 'off'}`);
     console.log(`    DB:          ${DB_PATH}`);
     console.log(`    Mail:        ${DISABLE_EMAIL ? 'DISABLED' : (GMAIL_APP_PASSWORD ? `enabled as ${GMAIL_USER}` : 'NOT configured (set GMAIL_APP_PASSWORD in .env)')}`);
