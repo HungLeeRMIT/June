@@ -501,7 +501,7 @@ ${seatLines}
   • Tổng đã thanh toán: ${formatVND(total)}
 
 Đêm diễn:
-  • 30 MAY 2026 · 8PM – 9:30PM  (check-in 7PM)
+  • 30 MAY 2026 · 7PM – 8:30PM  (check-in 6PM)
   • Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội
 
 Hẹn gặp bạn ở đêm diễn!
@@ -522,7 +522,7 @@ ${seatLines}
   • Total paid: ${formatVND(total)}
 
 The show:
-  • 30 MAY 2026 · 8PM – 9:30PM  (check-in at 7PM)
+  • 30 MAY 2026 · 7PM – 8:30PM  (check-in at 6PM)
   • Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội
 
 See you at the show!
@@ -553,7 +553,7 @@ RMIT Hanoi Musical Theatre Club
 
   <div style="margin:18px 0;padding:14px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid rgba(247,220,138,.25);">
     <div style="color:#f7dc8a;font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">The show / Đêm diễn</div>
-    <div><strong>30 MAY 2026</strong> · 8PM – 9:30PM (check-in at 7PM)</div>
+    <div><strong>30 MAY 2026</strong> · 7PM – 8:30PM (check-in at 6PM)</div>
     <div>Nhà văn hoá Quận Đống Đa, 22 Đặng Tiến Đông, Hà Nội</div>
   </div>
 
