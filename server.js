@@ -241,9 +241,10 @@ function buildSeatCatalog() {
         }
     };
     // Floor 1
-    ['A','B','C'].forEach(r => addRange(1, r, 'VIP', 1, 24));
-    ['D','E','F'].forEach(r => addRange(1, r, 'Stars', 1, 26));       // only 3 Stars rows
-    ['G','H','J'].forEach(r => addRange(1, r, 'Artists', 1, 26));     // reassigned to Artists
+    ['A','B'].forEach(r => addRange(1, r, 'VIP', 1, 24));             // 2 VIP rows (A, B)
+    addRange(1, 'C', 'Stars', 1, 24);                                 // row C: Stars, 24 seats
+    ['D','E','F'].forEach(r => addRange(1, r, 'Stars', 1, 26));       // Stars, 26 seats
+    ['G','H','J'].forEach(r => addRange(1, r, 'Artists', 1, 26));     // Artists
     ['K','L','M'].forEach(r => addRange(1, r, 'Artists', 1, 28));
     addRange(1, 'N', 'Artists', 1, 24);
     // Floor 2
