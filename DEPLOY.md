@@ -179,6 +179,15 @@ Pushed new code to GitHub and want it live?
 
 Restart is required for `server.js` changes. Static files (`club.html`, `admin.html`) are reloaded by the browser on next request — no restart needed.
 
+> **Where is the booking DB?** In production the server stores `theatre.db`
+> **outside** `public_html`, at `~/domains/rmithanoitheatre.shop/theatre-data/theatre.db`,
+> so FTP overwrites and re-clones cannot delete it. The first time you run
+> the upgraded server it will automatically copy any pre-existing
+> `public_html/theatre.db` (and `-wal`/`-shm` sidecars) into the new
+> location — check the **Logs** tab for a `[db] migrated legacy DB …` line.
+> To pin the DB to an explicit path instead, set `DB_PATH` in the env-var
+> editor.
+
 ## A-10. Troubleshooting (Path A specifics)
 
 | Symptom | Fix |

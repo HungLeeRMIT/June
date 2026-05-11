@@ -63,9 +63,58 @@ const PRICES = {
     Dreamers: 180000,
 };
 
-// Allow persistent-disk / mounted-volume deployments (Hostinger VPS can store
-// the DB outside the app dir so an app-level re-deploy never nukes data).
-const DB_PATH         = process.env.DB_PATH         || path.join(__dirname, 'theatre.db');
+// Allow persistent-disk / mounted-volume deployments. The default in
+// production deliberately lives OUTSIDE the deployable app folder (i.e. one
+// directory above __dirname) so that:
+//   • FTP re-upload of public_html does NOT overwrite the DB
+//   • `git pull` / `npm ci` cannot touch it
+//   • `rm -rf public_html && git clone …` (the most destructive deploy
+//     pattern Hostinger users hit) leaves the data untouched.
+//
+//   Hostinger shared:  ~/domains/<site>/public_html         → ~/domains/<site>/theatre-data/theatre.db
+//   VPS (Path B):      /var/www/theatre                     → /var/www/theatre-data/theatre.db
+//
+// If you mount a dedicated volume (e.g. /var/lib/theatre on a VPS) point
+// DB_PATH there explicitly via the env var.
+function resolveDbPath() {
+    if (process.env.DB_PATH) return process.env.DB_PATH;
+
+    const legacyPath = path.join(__dirname, 'theatre.db');
+    // In dev we keep the DB next to the source so `npm start` Just Works.
+    if (!IS_PROD) return legacyPath;
+
+    const persistentDir  = path.resolve(__dirname, '..', 'theatre-data');
+    const persistentPath = path.join(persistentDir, 'theatre.db');
+
+    try {
+        fs.mkdirSync(persistentDir, { recursive: true });
+    } catch (err) {
+        console.warn(`[db] cannot create persistent dir ${persistentDir}: ${err.message}`);
+        console.warn('[db] falling back to in-app theatre.db — this WILL be lost on re-deploy. Set DB_PATH explicitly.');
+        return legacyPath;
+    }
+
+    // First boot after upgrading to the persistent layout: rescue any DB
+    // (and its WAL sidecars) that already exists inside the app dir so we
+    // don't lose data the user wrote before this fix landed.
+    if (!fs.existsSync(persistentPath) && fs.existsSync(legacyPath)) {
+        try {
+            for (const suffix of ['', '-wal', '-shm']) {
+                const src = legacyPath + suffix;
+                const dst = persistentPath + suffix;
+                if (fs.existsSync(src)) fs.copyFileSync(src, dst);
+            }
+            console.log(`[db] migrated legacy DB ${legacyPath} → ${persistentPath}`);
+        } catch (err) {
+            console.error(`[db] migration failed: ${err.message}`);
+            console.error('[db] continuing with empty persistent DB at', persistentPath);
+        }
+    }
+
+    return persistentPath;
+}
+
+const DB_PATH         = resolveDbPath();
 const BANK_SCREENSHOT = process.env.BANK_SCREENSHOT || path.join(__dirname, 'payment.jpeg');
 
 // ---------------------------------------------------------------------------
@@ -299,37 +348,44 @@ function buildEmail({ name, phone, seats, subtotal, discount, total, hasReferral
     const discountNoteEN = (hasReferral || isRmit)
         ? '(5% discount applied for RMIT student/staff or referral code holder.)' : '';
 
-    const subject = 'Xác nhận tham dự / Registration confirmation — Theat.R Musical Production #3 — La La Land: The Cost of the Dream';
+    const subject = 'THANH TOÁN ĐỂ XÁC NHẬN THAM DỰ SHOW / PAYMENT TO CONFIRM REGISTRATION — LA LA LAND: THE COST OF THE DREAM';
 
-    // Plain-text version. The VN section references the attached bank-transfer
-    // image (exactly like automatic_mail.md); the EN section spells out the
-    // bank details as text.
+    // Plain-text version. The bank-transfer QR image is delivered as an
+    // attachment / inline image in the HTML body; in plain-text we spell
+    // out the bank details so the message is self-contained.
     const text =
-`THEAT.R MUSICAL PRODUCTION #3 — LA LA LAND: THE COST OF THE DREAM
+`LA LA LAND: THE COST OF THE DREAM
 
 Xin chào ${name},
 
 Theat.R xin gửi lời cảm ơn chân thành tới bạn vì đã đăng ký tham dự đêm nhạc kịch:
 
-Thông tin đăng ký của bạn:
+Thông tin đăng ký của bạn
   • Họ và tên: ${name}
   • Số điện thoại: ${phone}
   • Ghế đã đặt (hạng - tầng - hàng - số ghế):
 ${seatLines}
 
-Chúng mình xin phép gửi bạn thông tin thanh toán tương ứng với hạng ghế như sau:
+Thông tin thanh toán
   • Hạng The Stars:    300,000 VND / 1 ghế
   • Hạng The Artists:  250,000 VND / 1 ghế
   • Hạng The Dreamers: 180,000 VND / 1 ghế
 
-Tổng tạm tính: ${formatVND(subtotal)}${discount > 0 ? `
-Giảm giá (5%): -${formatVND(discount)}` : ''}
+Tổng tạm tính:   ${formatVND(subtotal)}${discount > 0 ? `
+Giảm giá (5%):  -${formatVND(discount)}` : ''}
 Tổng thanh toán: ${formatVND(total)}
 ${discountNoteVN}
 
 Đặc biệt, đối với sinh viên, staff của RMIT và người thân, bạn bè của diễn viên có mã giới thiệu sẽ được giảm 5% trên tổng số ghế.
 
-Bạn hãy vui lòng chuyển khoản số tiền tương ứng với hạng ghế và số ghế bạn đã chọn ở trên qua thông tin trong ẢNH ĐÍNH KÈM (bank-transfer).
+Lưu ý:
+  • Sau 48h kể từ thời điểm nhận mail, ghế sẽ tự động huỷ trong trường hợp chúng mình không nhận được tiền vé.
+  • Nhân sự của chúng mình sẽ liên lạc bạn để quản lý đặt chỗ. Nếu quá 3 lần không thể liên lạc được, ghế sẽ bị huỷ.
+
+Bạn hãy vui lòng chuyển khoản số tiền tương ứng với hạng ghế và số ghế bạn đã chọn ở trên qua thông tin sau:
+
+  VIETCOMBANK — 1061771304 — HOANG DUC HONG (PGD Nguyễn Chí Thanh)
+  (Vui lòng xem ẢNH ĐÍNH KÈM mã QR chuyển khoản.)
 
 Sau khi chuyển khoản, vui lòng REPLY EMAIL NÀY kèm ảnh chụp màn hình chuyển khoản thành công. Email XÁC NHẬN VÉ CUỐI CÙNG sẽ được gửi đến bạn.
 
@@ -344,23 +400,27 @@ Dear ${name},
 
 Thank you sincerely for booking your ticket and confirming your attendance at Theat.R Musical Production #3 — La La Land: The Cost of the Dream.
 
-Your Registration Details:
+Your Registration Details
   • Full Name:    ${name}
   • Phone Number: ${phone}
   • Selected seats (tier - floor - row - seat):
 ${seatLines}
 
-We would like to provide you with the payment details corresponding to each seating category as follows:
+Payment
   • The Stars:    300,000 VND per seat
   • The Artists:  250,000 VND per seat
   • The Dreamers: 180,000 VND per seat
 
-Subtotal: ${formatVND(subtotal)}${discount > 0 ? `
+Subtotal:      ${formatVND(subtotal)}${discount > 0 ? `
 Discount (5%): -${formatVND(discount)}` : ''}
-Total: ${formatVND(total)}
+Total:         ${formatVND(total)}
 ${discountNoteEN}
 
 Additionally, RMIT students, staff, and friends or family of the cast with a referral code will receive a 5% discount on the total ticket amount.
+
+Important note:
+  • Seats will be automatically released 48 hours after this email is sent if we do not receive the ticket payment.
+  • Our team will also contact you regarding your reservation. If we are unable to reach you after 3 attempts, your booking will be cancelled automatically.
 
 Please kindly transfer the corresponding amount based on your selected seating category and number of seats using the following details:
 
@@ -403,8 +463,7 @@ RMIT Hanoi Musical Theatre Club
 <html><body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#0b032d;color:#fbf5e7;padding:32px;margin:0;">
 <div style="max-width:640px;margin:0 auto;background:rgba(32,18,83,0.6);border:1px solid rgba(247,220,138,.25);border-radius:16px;padding:28px;">
 
-  <h2 style="color:#f7dc8a;font-family:'Georgia',serif;margin:0 0 4px;">Theat.R Musical Production #3</h2>
-  <h3 style="color:#fff1b6;margin:0 0 22px;">La La Land: The Cost of the Dream</h3>
+  <h2 style="color:#f7dc8a;font-family:'Georgia',serif;margin:0 0 22px;">La La Land: The Cost of the Dream</h2>
 
   <!-- ===== VIETNAMESE (top) ===== -->
   <p>Xin chào <strong>${name}</strong>,</p>
@@ -427,11 +486,20 @@ RMIT Hanoi Musical Theatre Club
 
   <p style="margin-top:16px">Đặc biệt, đối với sinh viên, staff của RMIT và người thân, bạn bè của diễn viên có mã giới thiệu sẽ được giảm 5% trên tổng số ghế.</p>
 
+  <div style="margin-top:16px;padding:12px 14px;background:rgba(255,255,255,.04);border-left:3px solid #f7dc8a;border-radius:6px;">
+    <p style="margin:0 0 6px;color:#f7dc8a;"><strong>Lưu ý:</strong></p>
+    <ul style="margin:0;padding-left:18px;">
+      <li>Sau 48h kể từ thời điểm nhận mail, ghế sẽ tự động huỷ trong trường hợp chúng mình không nhận được tiền vé.</li>
+      <li>Nhân sự của chúng mình sẽ liên lạc bạn để quản lý đặt chỗ. Nếu quá 3 lần không thể liên lạc được, ghế sẽ bị huỷ.</li>
+    </ul>
+  </div>
+
   <p style="margin-top:16px">Bạn hãy vui lòng chuyển khoản số tiền tương ứng với hạng ghế và số ghế bạn đã chọn ở trên qua thông tin sau:</p>
 
   <!-- Bank-transfer image embedded via CID (same file also attached) -->
   <div style="margin:12px 0;padding:8px;background:rgba(255,255,255,.04);border:1px solid rgba(247,220,138,.25);border-radius:12px;text-align:center;">
     <img src="cid:bank-transfer" alt="VIETCOMBANK — 1061771304 — HOANG DUC HONG (PGD Nguyễn Chí Thanh)" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto;" />
+    <div style="margin-top:8px;font-size:13px;color:#fff1b6;">VIETCOMBANK — 1061771304 — HOANG DUC HONG (PGD Nguyễn Chí Thanh)</div>
   </div>
 
   <p style="margin-top:14px">Sau khi chuyển khoản, vui lòng <strong>REPLY EMAIL NÀY</strong> kèm ảnh chụp màn hình chuyển khoản thành công. Email <strong>XÁC NHẬN VÉ CUỐI CÙNG</strong> sẽ được gửi đến bạn.</p>
@@ -461,6 +529,14 @@ RMIT Hanoi Musical Theatre Club
   ${discountNoteEN ? `<p style="color:#fff1b6;font-size:12px;font-style:italic;margin-top:6px;">${discountNoteEN}</p>` : ''}
 
   <p style="margin-top:16px">Additionally, RMIT students, staff, and friends or family of the cast with a referral code will receive a 5% discount on the total ticket amount.</p>
+
+  <div style="margin-top:16px;padding:12px 14px;background:rgba(255,255,255,.04);border-left:3px solid #f7dc8a;border-radius:6px;">
+    <p style="margin:0 0 6px;color:#f7dc8a;"><strong>Important note:</strong></p>
+    <ul style="margin:0;padding-left:18px;">
+      <li>Seats will be automatically released 48 hours after this email is sent if we do not receive the ticket payment.</li>
+      <li>Our team will also contact you regarding your reservation. If we are unable to reach you after 3 attempts, your booking will be cancelled automatically.</li>
+    </ul>
+  </div>
 
   <p style="margin-top:16px">Please kindly transfer the corresponding amount based on your selected seating category and number of seats using the following details:</p>
 
